@@ -1,116 +1,67 @@
-#Multiple Linear Regression : DV vs more than 1 IVs
-#sales Qty vs price & promotion
-#Predict Sales Qty from Price and Promotion of the Product
+# Frequency Distribution
+
+#Discrete Cat Data
+(attend = c('A','P','P','A','P','A'))
+table(attend)
+cbind(table(attend))  # A & P on left side
+
+#Discrete Category Data
+
+color=c('blue','green','blue','magenta','blue','green', 'magenta','black','blue','black')
+(x2 = table(color))
+(x2a = cbind(x2))
+hist(x2a)  # not relevant 
+barplot(x2a)  # not good
+barplot(x2a, beside=T)  # Better
+unique(color) ; length(unique(color))
+barplot(x2a, beside=T, col=rainbow(length(unique(color))))
+barplot(x2a, beside=T, col=sort(unique(color)), names.arg=names(x2))
+unique(color)
+sort(unique(color))
+pie(x2a)
+
+#Continuous Data 
+set.seed(1234)
+x3 = runif(100,0,150)  # 0 to 150 marks range, 100 values 
+x3
+x3 = ceiling(x3)  #round to higher value
+x3
+range(x3)
+# Divide range into step of 15 ie 10 levels
+breaks = seq(0,150,by=15)
+breaks
+length(breaks)
+x3
+#x3[1] = 60; x3[2] = 75
+x3.cut = cut(x3, breaks)
+x3.cut
+table(x3.cut)
+cbind(table(x3.cut))  #see it vertically
+
+#give intervals a character values a, b..
+(x3.cut = cut(x3, breaks, labels=letters[1:10]))
+#(x3.cut = cut(x3, breaks, labels=letters[1:length(breaks)-1]))
+x3.cut
+
+(x3a = table(x3.cut))
+(x3b = cbind(x3a))
+
+#plot these freq Table: which is better
+hist(x3b)
+hist(x3,breaks=15)
+hist(x3,breaks=15,col=1:10)
+pie(x3b)
+barplot(x3b, beside=T)
+barplot(x3b, beside=T, names.arg =rownames(x3b))
+plot(x3b)
 
 
-#Omni Store
-#creating data using Vector
-sales= c(4141,3842,3056,3519,4226, 4630,3507,3754, 5000,5120,4011, 5015,1916,675, 3636,3224,2295, 2730,2618,4421, 4113,3746, 3532, 3825,1096, 761,2088,820,2114, 1882,2159,1602,3354,2927)
-price = c(59,59,59,59,59,59,59,59,59,59,59,59, 79,79,79,79,79,79,79,79,79, 79,79,79,99,99, 99,99,99,99,99,99,99,99)
-promotion= c(200,200,200,200,400,400,400,400, 600,600,600,600,200,200,200,200, 400,400,400,400,600,600,600,600, 200,200,200,200,400,400,400,400,600,600)
-#Create a DF from 3 variables
-omni1 = data.frame(sales,price,promotion)
-head(omni1)
-
-#2nd Method : from CSV file
-omni2 = read.csv('./DATA/SalesQuantity.csv')
-head(omni2)
-#or
-omni2b= read.csv(file.choose())
-head(omni2b,10)
-tail(omni2b)
-
-#3rd Method : from gsheet 
-library(gsheet)
-url = "https://docs.google.com/spreadsheets/d/1h7HU0X_Q4T5h5D1Q36qoK40Tplz94x_HZYHOJJC_edU/edit#gid=1595306231"
-omni3 = as.data.frame(gsheet::gsheet2tbl(url))
-head(omni3)
-#Make one of data frames active
-omni = omni2b
-head(omni)
-str(omni)
-nrow(omni)
-#MLR  Create Multiple Linear Regression
-# we want to see how Sales Qty depend on Price and Promotion Values
-fit2 = lm(sales ~ price + promotion, data=omni)
-
-# summary statistics of model IMP STEP
-summary(fit2)
-#understand values : R2, AdjR2, Fstats pvalue, Coeff, ***, Residuals
-#F Stats pvalue = 2.86e-10 < 0.05 : Model Exists
-#At least 1 IV can be used to predict sales
-names(summary(fit2))
-summary(fit2)$adj.r.squared  # Adjt R2 here > .6 
-#60% of variation in sales is explained by price and promotion
-
-#coefficients b1, b2
-coef(fit2)
-summary(fit2)
-#price  : -53 , pvalue = 9.2e-09 < 0.05 *** : Significant
-#keeping promotion constant, if price is increased by 1 unit, salesqty decreases by 53 units
-#promotion  : +3.6 , pvalue = 9.82e-06 < 0.05 ***: Significant
-#keeping price constant, if promotion is increased by 1 unit, salesqty increases by 53 units
-
-fitted(fit2)
-omni$sales
-residuals(fit2)
-summary(residuals(fit2))
-summary(fit2)
-#Predict SalesQty for new combination of Values----
-
-#create a dataframe of new sample values
-(ndata2 = data.frame(price=c(60,70), promotion=c(300,400)))
-p2sales = predict(fit2, newdata=ndata2)
-cbind(ndata2, p2sales)
-
-#Assumptions
-par(mfrow=c(2,2))
-plot(fit2)
-par(mfrow=c(1,1))
-
-plot(fit2,which=1)  # no pattern, equal variance
-plot(fit2,2)  # Residuals are normally distributed
-plot(fit2,3)  # No hetero-scedascity
-plot(fit2,4)  # tells outliers which affect model
-omni[-c(11,14,15),]
-
-fit3 = lm(sales ~ price + promotion, data=omni[-c(11,14,15),])
-plot(fit3,4)
-summary(fit3)
-
-#End of Multiple Linear Regression
-
-#when variables are large, select only significant variables
-#Model with higher R2 to be selected
-#other measures of model selection : AIC, BIC, RMSE
-#Dataset can be divided into train(70%) and test(30%) set to check the accuracy
-
-#create model with t
-
-
-
-
-
-#questions
-fit2
-summary(fit2)
-head(omni)
-cbind(omni, predict(fit2, newdata = data.frame(omni$price, omni$promotion)))
-cbind(omni, fitted(fit2))
-cbind(omni, fitted(fit2), omni$sales - fitted(fit2), residuals(fit2))
-
-#https://cran.r-project.org/web/packages/olsrr/olsrr.pdf
-#install.packages('olsrr')
-library(olsrr)
-names(mtcars)
-mtcars[,c('disp','hp','wt','qsec')]
-model <- lm(mpg ~ disp + hp + wt + qsec, data = mtcars)
-k <- ols_step_all_possible(model)
-plot(k)
-k
-summary(lm(mpg ~ wt, data=mtcars))
-summary(lm(mpg ~ wt+ hp, data=mtcars))
-AIC(lm(mpg ~ wt+ hp, data=mtcars))
-AIC(lm(mpg ~ ., data=mtcars))
-AIC(lm(mpg ~ wt, data=mtcars))
-
+# and so..on like previous eg
+h=hist(x3,breaks=15)
+h
+#to check whether its normal distributed or not
+hist(x3,freq=F)
+lines(density(x3))
+x4=rnorm(1000,60,5)
+hist(x4,freq=5)
+lines(density(x4))
